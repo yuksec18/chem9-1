@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧪 化学小课堂 · 沪教版九年级</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple-50: #EEEDFE; --purple-100: #CECBF6; --purple-200: #AFA9EC;
+      --purple-400: #7F77DD; --purple-600: #534AB7; --purple-800: #3C3489;
+      --teal-50: #E1F5EE; --teal-200: #5DCAA5; --teal-800: #085041;
+      --green-50: #EAF3DE; --green-200: #97C459; --green-800: #27500A;
+      --red-50: #FCEBEB; --red-200: #F09595; --red-800: #791F1F;
+      --amber-50: #FAEEDA; --amber-400: #BA7517;
+      --gray-50: #F8F8F6; --gray-100: #F1EFE8; --gray-200: #D3D1C7;
+      --gray-400: #888780; --gray-600: #5F5E5A; --gray-800: #2C2C2A;
+      --bg: #ffffff; --bg-secondary: #F8F8F6; --bg-tertiary: #F1EFE8;
+      --text: #1a1a18; --text-secondary: #5F5E5A; --text-tertiary: #888780;
+      --border: rgba(0,0,0,0.10); --border-secondary: rgba(0,0,0,0.18);
+      --radius: 10px; --radius-lg: 14px; --radius-xl: 20px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --purple-50: #26215C; --purple-100: #3C3489; --purple-200: #534AB7;
+        --purple-400: #7F77DD; --purple-600: #AFA9EC; --purple-800: #CECBF6;
+        --green-50: #173404; --green-200: #3B6D11; --green-800: #C0DD97;
+        --red-50: #501313; --red-200: #A32D2D; --red-800: #F7C1C1;
+        --bg: #18181a; --bg-secondary: #222224; --bg-tertiary: #2a2a2c;
+        --text: #f0f0ee; --text-secondary: #a8a8a4; --text-tertiary: #6a6a68;
+        --border: rgba(255,255,255,0.08); --border-secondary: rgba(255,255,255,0.15);
+        --shadow: 0 1px 4px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+      }
+    }
+
+    body {
+      font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg-tertiary);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--bg);
+      border-right: 0.5px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      overflow-y: auto; z-index: 100;
+      transition: transform 0.3s;
+    }
+    .sidebar-logo { padding: 1.5rem 1.25rem 1rem; border-bottom: 0.5px solid var(--border); }
+    .sidebar-logo h1 { font-size: 17px; font-weight: 600; color: var(--text); }
+    .sidebar-logo p { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; }
+
+    .nav-section { padding: 1rem 0.75rem 0.5rem; }
+    .nav-label { font-size: 11px; font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; padding: 0 0.5rem; margin-bottom: 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: var(--radius);
+      cursor: pointer; font-size: 14px; color: var(--text-secondary);
+      transition: all 0.15s; border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: var(--bg-secondary); color: var(--text); }
+    .nav-item.active { background: var(--purple-50); color: var(--purple-800); font-weight: 500; }
+    .nav-item .icon { font-size: 16px; flex-shrink: 0; }
+
+    .sidebar-footer { margin-top: auto; padding: 1rem; border-top: 0.5px solid var(--border); }
+    .api-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-200); flex-shrink: 0; }
+    .dot.error { background: #E24B4A; }
+
+    /* ── Main ── */
+    .main { margin-left: 240px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+    .topbar {
+      background: var(--bg); border-bottom: 0.5px solid var(--border);
+      padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-size: 16px; font-weight: 500; color: var(--text); }
+    .topbar-subtitle { font-size: 13px; color: var(--text-tertiary); }
+    .menu-btn { display: none; background: none; border: none; cursor: pointer; font-size: 20px; color: var(--text); }
+
+    .content { padding: 1.5rem; max-width: 800px; margin: 0 auto; width: 100%; flex: 1; }
+
+    /* ── Panel ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+      margin-bottom: 1rem; box-shadow: var(--shadow);
+    }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
+
+    /* ── Chapter grid ── */
+    .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .chap-card {
+      background: var(--bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem 1rem;
+      cursor: pointer; transition: all 0.18s; text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .chap-card:hover { border-color: var(--purple-200); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(127,119,221,0.15); }
+    .chap-card .ci { font-size: 32px; margin-bottom: 10px; }
+    .chap-card .ct { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .chap-card .cs { font-size: 12px; color: var(--text-tertiary); }
+
+    /* ── AI Chat area ── */
+    .chat-area { display: flex; flex-direction: column; gap: 1rem; }
+    .chat-bubble {
+      padding: 1rem 1.25rem; border-radius: var(--radius-lg);
+      font-size: 14px; line-height: 1.8; max-width: 100%;
+    }
+    .chat-bubble.user { background: var(--purple-50); color: var(--purple-800); border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg); }
+    .chat-bubble.ai { background: var(--bg); border: 0.5px solid var(--border); box-shadow: var(--shadow); border-radius: 4px var(--radius-lg) var(--radius-lg) var(--radius-lg); }
+    .chat-bubble.ai p { margin: 0.5rem 0; }
+    .chat-bubble.ai p:first-child { margin-top: 0; }
+    .chat-bubble.ai p:last-child { margin-bottom: 0; }
+    .chat-bubble.ai strong { color: var(--purple-800); }
+    .chat-bubble.ai h3 { font-size: 15px; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--text); }
+    .chat-bubble.ai ul, .chat-bubble.ai ol { padding-left: 1.25rem; margin: 0.5rem 0; }
+    .chat-bubble.ai li { margin: 3px 0; }
+    .chat-bubble.ai code { background: var(--bg-secondary); border-radius: 4px; padding: 1px 5px; font-size: 13px; font-family: monospace; }
+    .chat-bubble.ai blockquote { border-left: 3px solid var(--purple-200); padding-left: 12px; color: var(--text-secondary); margin: 0.5rem 0; }
+    .chat-bubble.ai table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 0.75rem 0; }
+    .chat-bubble.ai th { background: var(--bg-secondary); padding: 6px 10px; text-align: left; border: 0.5px solid var(--border); }
+    .chat-bubble.ai td { padding: 6px 10px; border: 0.5px solid var(--border); }
+
+    .typing { display: flex; align-items: center; gap: 6px; padding: 1rem 1.25rem; }
+    .typing span { width: 8px; height: 8px; border-radius: 50%; background: var(--purple-200); animation: bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    .input-area { display: flex; gap: 10px; margin-top: 1rem; }
+    .input-area textarea {
+      flex: 1; padding: 10px 14px; border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius); background: var(--bg); color: var(--text);
+      font-family: inherit; font-size: 14px; resize: none; min-height: 44px; max-height: 120px;
+      outline: none; transition: border-color 0.15s;
+    }
+    .input-area textarea:focus { border-color: var(--purple-400); }
+    .input-area button {
+      padding: 0 18px; border-radius: var(--radius); border: none;
+      background: var(--purple-400); color: white; font-size: 14px;
+      cursor: pointer; flex-shrink: 0; transition: all 0.15s;
+    }
+    .input-area button:hover { background: var(--purple-600); }
+    .input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Quiz ── */
+    .quiz-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .score-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--purple-50); border: 0.5px solid var(--purple-200); color: var(--purple-800); border-radius: 20px; padding: 4px 14px; font-size: 13px; font-weight: 500; }
+    .progress-bar { height: 4px; background: var(--bg-secondary); border-radius: 2px; margin-bottom: 1.25rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--purple-400); border-radius: 2px; transition: width 0.4s; }
+    .quiz-q { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 1rem; line-height: 1.7; }
+    .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt {
+      padding: 11px 16px; border: 0.5px solid var(--border-secondary); border-radius: var(--radius);
+      cursor: pointer; font-size: 14px; color: var(--text); background: var(--bg);
+      text-align: left; transition: all 0.15s; width: 100%;
+    }
+    .opt:hover:not(:disabled) { background: var(--purple-50); border-color: var(--purple-200); color: var(--purple-800); }
+    .opt.correct { background: var(--green-50); border-color: var(--green-200); color: var(--green-800); }
+    .opt.wrong { background: var(--red-50); border-color: var(--red-200); color: var(--red-800); }
+    .feedback { margin-top: 12px; padding: 12px 14px; border-radius: var(--radius); font-size: 13px; line-height: 1.7; display: none; }
+    .feedback.show { display: block; }
+    .feedback.correct { background: var(--green-50); color: var(--green-800); }
+    .feedback.wrong { background: var(--red-50); color: var(--red-800); }
+    .next-btn { margin-top: 14px; padding: 9px 22px; border-radius: 20px; border: 0.5px solid var(--purple-200); background: var(--purple-50); color: var(--purple-800); font-size: 14px; cursor: pointer; display: none; }
+    .next-btn.show { display: inline-block; }
+
+    /* ── Flashcards ── */
+    .fc-card {
+      background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg);
+      min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem 1.5rem; cursor: pointer; transition: all 0.2s;
+      box-shadow: var(--shadow); margin-bottom: 1rem; position: relative;
+    }
+    .fc-card:hover { border-color: var(--purple-200); }
+    .fc-front .sym { font-size: 42px; font-weight: 600; color: var(--purple-800); margin-bottom: 10px; }
+    .fc-front .hint { font-size: 13px; color: var(--text-tertiary); }
+    .fc-back { font-size: 15px; color: var(--text); line-height: 1.8; display: none; white-space: pre-line; }
+    .fc-card.flipped .fc-front { display: none; }
+    .fc-card.flipped .fc-back { display: block; }
+    .fc-tap-hint { position: absolute; bottom: 12px; right: 14px; font-size: 11px; color: var(--text-tertiary); }
+    .fc-controls { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .fc-btn { padding: 8px 22px; border-radius: 20px; border: 0.5px solid var(--border-secondary); background: var(--bg); color: var(--text-secondary); font-size: 14px; cursor: pointer; transition: all 0.15s; }
+    .fc-btn:hover { background: var(--bg-secondary); }
+    .fc-counter { text-align: center; font-size: 13px; color: var(--text-tertiary); }
+
+    /* ── Experiment ── */
+    .exp-step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 0.5px solid var(--border); }
+    .step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--purple-50); color: var(--purple-800); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .step-text { font-size: 14px; color: var(--text); line-height: 1.7; }
+    .step-text .hl { color: var(--purple-800); font-weight: 500; }
+
+    /* ── Formulas ── */
+    .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+    .f-card { background: var(--bg-secondary); border-radius: var(--radius); padding: 12px; text-align: center; }
+    .f-card .sym { font-size: 20px; font-weight: 600; color: var(--purple-800); }
+    .f-card .name { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .f-card .desc { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+    .reaction { background: var(--bg-secondary); border-radius: var(--radius); padding: 10px 14px; font-size: 14px; color: var(--text); margin-bottom: 8px; }
+    .reaction .arrow { color: var(--purple-400); }
+    .section-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 1.25rem 0 0.75rem; }
+
+    /* ── Quick ask ── */
+    .quick-btn {
+      width: 100%; padding: 11px 14px; border-radius: var(--radius);
+      border: 0.5px dashed var(--border-secondary); background: transparent;
+      color: var(--text-secondary); font-size: 14px; cursor: pointer;
+      margin-top: 1rem; transition: all 0.15s; text-align: left;
+    }
+    .quick-btn:hover { background: var(--bg-secondary); border-style: solid; }
+
+    /* ── Setup modal ── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal { background: var(--bg); border-radius: var(--radius-xl); padding: 2rem; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .modal p { font-size: 14px; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.7; }
+    .modal input { width: 100%; padding: 10px 14px; border: 0.5px solid var(--border-secondary); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); font-size: 14px; outline: none; margin-bottom: 1rem; }
+    .modal input:focus { border-color: var(--purple-400); }
+    .modal-btn { width: 100%; padding: 11px; border: none; border-radius: var(--radius); background: var(--purple-400); color: white; font-size: 15px; font-weight: 500; cursor: pointer; }
+    .modal-btn:hover { background: var(--purple-600); }
+    .modal-note { font-size: 12px; color: var(--text-tertiary); margin-top: 12px; line-height: 1.6; }
+
+    /* ── Mobile ── */
+    .overlay-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90; }
+    @media (max-width: 700px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-mask.show { display: block; }
+      .main { margin-left: 0; }
+      .menu-btn { display: block; }
+      .content { padding: 1rem; }
+      .chapter-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Mobile mask -->
+<div class="overlay-mask" id="mask" onclick="closeSidebar()"></div>
+
+<!-- Setup modal -->
+<div class="overlay" id="setup-modal">
+  <div class="modal">
+    <div style="font-size:36px;margin-bottom:12px;">🧪</div>
+    <h2>化学小课堂</h2>
+    <p>请输入你的 Anthropic API Key，才能启用 AI 讲解功能。Key 仅保存在本地浏览器，不会上传到任何服务器。</p>
+    <input type="password" id="key-input" placeholder="sk-ant-api03-..." />
+    <button class="modal-btn" onclick="saveKey()">开始学习 →</button>
+    <p class="modal-note">
+      还没有 API Key？前往 <a href="https://console.anthropic.com" target="_blank" style="color:var(--purple-400)">console.anthropic.com</a> 免费注册获取。<br>
+      没有 Key 也可以使用测验、记忆卡片等离线功能。<br><br>
+      <a href="#" onclick="skipSetup()" style="color:var(--text-tertiary)">跳过，先看看 →</a>
+    </p>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h1>🧪 化学小课堂</h1>
+      <p>沪教版九年级上册</p>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">AI 讲解</div>
+      <button class="nav-item active" onclick="nav('chapters', this)"><span class="icon">📚</span>章节导览</button>
+      <button class="nav-item" onclick="nav('chat', this)"><span class="icon">💬</span>自由提问</button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">练习工具</div>
+      <button class="nav-item" onclick="nav('quiz', this)"><span class="icon">✏️</span>随堂测验</button>
+      <button class="nav-item" onclick="nav('flashcards', this)"><span class="icon">🃏</span>记忆卡片</button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">参考资料</div>
+      <button class="nav-item" onclick="nav('experiments', this)"><span class="icon">🔬</span>实验步骤</button>
+      <button class="nav-item" onclick="nav('formulas', this)"><span class="icon">⚗️</span>化学式速查</button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="api-status">
+        <div class="dot" id="api-dot"></div>
+        <span id="api-label">API 未连接</span>
+        <button onclick="document.getElementById('setup-modal').style.display='flex'" style="margin-left:auto;background:none;border:none;color:var(--purple-400);font-size:12px;cursor:pointer;">设置</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div>
+        <div class="topbar-title" id="page-title">章节导览</div>
+        <div class="topbar-subtitle">点击章节卡片，AI 为你讲解重点</div>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="content">
+
+      <!-- 章节导览 -->
+      <div class="panel active" id="panel-chapters">
+        <div class="chapter-grid">
+          <div class="chap-card" onclick="askChapter('第1章 开启化学之门','化学是什么、化学研究什么、怎样学习化学')">
+            <div class="ci">🚪</div><div class="ct">第1章</div><div class="cs">开启化学之门</div>
+          </div>
+          <div class="chap-card" onclick="askChapter('第2章 空气与水资源','空气的组成、氧气的性质与制备、水的组成和净化')">
+            <div class="ci">💧</div><div class="ct">第2章</div><div class="cs">空气与水资源</div>
+          </div>
+          <div class="chap-card" onclick="askChapter('第3章 物质构成的奥秘','构成物质的微观粒子、化学元素、物质组成的表示')">
+            <div class="ci">⚛️</div><div class="ct">第3章</div><div class="cs">物质构成的奥秘</div>
+          </div>
+          <div class="chap-card" onclick="askChapter('第4章 认识化学反应','化学反应条件、质量守恒定律、化学方程式的书写')">
+            <div class="ci">🔥</div><div class="ct">第4章</div><div class="cs">认识化学反应</div>
+          </div>
+          <div class="chap-card" onclick="askChapter('第5章 奇妙的二氧化碳','CO₂的性质与用途、实验室制法、自然界碳循环')">
+            <div class="ci">🌿</div><div class="ct">第5章</div><div class="cs">奇妙的二氧化碳</div>
+          </div>
+          <div class="chap-card" onclick="askChapter('第6章 金属资源综合利用','金属矿物与铁的冶炼、金属性质与应用、金属防护')">
+            <div class="ci">⚙️</div><div class="ct">第6章</div><div class="cs">金属资源综合利用</div>
+          </div>
+        </div>
+        <div id="chapter-chat" class="chat-area" style="display:none;"></div>
+        <div style="margin-top:1rem;">
+          <button class="quick-btn" onclick="askAI('给我讲一个有趣的化学小知识，要和日常生活有关，适合初中生理解')">💡 给我讲一个有趣的化学小知识</button>
+          <button class="quick-btn" onclick="askAI('初中化学最容易记混的知识点有哪些？帮我总结一下，给出记忆技巧')">🧠 初中化学最容易混淆的知识点</button>
+        </div>
+      </div>
+
+      <!-- 自由提问 -->
+      <div class="panel" id="panel-chat">
+        <div class="chat-area" id="free-chat">
+          <div class="chat-bubble ai">
+            <p>👋 你好！我是你的化学小老师，有任何关于初中化学的问题都可以问我。</p>
+            <p>比如：<br>• 怎么配平化学方程式？<br>• 氧化反应和化合反应有什么区别？<br>• 为什么钠要保存在煤油里？</p>
+          </div>
+        </div>
+        <div class="input-area" style="margin-top:1rem;">
+          <textarea id="free-input" placeholder="输入你的问题…" rows="1" onkeydown="handleKey(event)"></textarea>
+          <button onclick="sendFree()" id="free-send-btn">发送</button>
+        </div>
+      </div>
+
+      <!-- 随堂测验 -->
+      <div class="panel" id="panel-quiz">
+        <div class="quiz-meta">
+          <div class="score-badge">⭐ 得分：<span id="score-disp">0</span> / <span id="total-disp">0</span></div>
+          <span style="font-size:13px;color:var(--text-tertiary)">共 8 题</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+        <div id="quiz-wrap"></div>
+      </div>
+
+      <!-- 记忆卡片 -->
+      <div class="panel" id="panel-flashcards">
+        <p style="font-size:13px;color:var(--text-tertiary);margin-bottom:1rem;">点击卡片翻转查看答案，左右切换浏览所有卡片</p>
+        <div class="fc-card" id="fc" onclick="flipCard()">
+          <div class="fc-front"><div class="sym" id="fc-sym"></div><div class="hint" id="fc-hint"></div></div>
+          <div class="fc-back" id="fc-back"></div>
+          <div class="fc-tap-hint">点击翻转</div>
+        </div>
+        <div class="fc-counter" id="fc-count"></div>
+        <div class="fc-controls" style="margin-top:12px;">
+          <button class="fc-btn" onclick="fcPrev()">← 上一张</button>
+          <button class="fc-btn" onclick="fcNext()">下一张 →</button>
+        </div>
+        <button class="quick-btn" onclick="askAI('请出5道关于化学元素符号的填空题，难度适合初二学生，附上答案')">📝 让 AI 出更多练习题</button>
+      </div>
+
+      <!-- 实验步骤 -->
+      <div class="panel" id="panel-experiments">
+        <div class="card">
+          <div class="card-title">🔬 实验1：氧气的实验室制取（加热高锰酸钾）</div>
+          <div class="exp-step"><div class="step-num">1</div><div class="step-text">检查装置<span class="hl">气密性</span>：连接好装置后将导管插入水中，用手握住试管，若导管口冒出气泡则气密性良好</div></div>
+          <div class="exp-step"><div class="step-num">2</div><div class="step-text">装药品：向试管中加入<span class="hl">高锰酸钾（KMnO₄）</span>，管口处塞一小团棉花防止粉末进入导管</div></div>
+          <div class="exp-step"><div class="step-num">3</div><div class="step-text">先<span class="hl">排尽空气</span>：导管伸入盛满水的集气瓶后，再点燃酒精灯加热试管</div></div>
+          <div class="exp-step"><div class="step-num">4</div><div class="step-text">用<span class="hl">排水法</span>收集：待气泡连续均匀冒出时开始收集，集满后在水下用玻璃片盖住瓶口</div></div>
+          <div class="exp-step"><div class="step-num">5</div><div class="step-text">⚠️ 结束顺序：<span class="hl">先撤导管，再熄灭酒精灯</span>，防止水倒流炸裂试管！</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">💧 实验2：电解水</div>
+          <div class="exp-step"><div class="step-num">1</div><div class="step-text">向水中加入少量<span class="hl">氢氧化钠（NaOH）</span>以增强导电性</div></div>
+          <div class="exp-step"><div class="step-num">2</div><div class="step-text">接通直流电源，观察两个电极均产生气泡</div></div>
+          <div class="exp-step"><div class="step-num">3</div><div class="step-text"><span class="hl">负极产生氢气（H₂）</span>体积较大；<span class="hl">正极产生氧气（O₂）</span>体积较小，两者体积比约为 2:1</div></div>
+          <div class="exp-step"><div class="step-num">4</div><div class="step-text">验证：带火星的木条靠近正极管口复燃（O₂）；燃着的火焰靠近负极发出"噗"声（H₂）</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔥 实验3：燃烧条件的探究</div>
+          <div class="exp-step"><div class="step-num">1</div><div class="step-text">对比实验：将<span class="hl">铜片上</span>同时放白磷和红磷，再把白磷放入<span class="hl">80°C 热水</span>中</div></div>
+          <div class="exp-step"><div class="step-num">2</div><div class="step-text">观察：铜片上白磷燃烧（有O₂+温度达到着火点），红磷不燃（温度未达到着火点），热水中白磷不燃（无O₂）</div></div>
+          <div class="exp-step"><div class="step-num">3</div><div class="step-text">结论：燃烧需要同时满足 ①<span class="hl">可燃物</span> ②<span class="hl">与氧气接触</span> ③<span class="hl">温度达到着火点</span>，缺一不可</div></div>
+        </div>
+        <button class="quick-btn" onclick="askAI('请详细讲解二氧化碳的实验室制取实验，包括所用药品、装置、收集方法和验满方法，用生动的方式解释')">🧪 AI 讲解 CO₂ 制取实验</button>
+      </div>
+
+      <!-- 化学式速查 -->
+      <div class="panel" id="panel-formulas">
+        <div class="card">
+          <div class="card-title">常见氧化物</div>
+          <div class="formula-grid">
+            <div class="f-card"><div class="sym">H₂O</div><div class="name">水</div><div class="desc">最常见溶剂</div></div>
+            <div class="f-card"><div class="sym">CO₂</div><div class="name">二氧化碳</div><div class="desc">温室气体</div></div>
+            <div class="f-card"><div class="sym">CO</div><div class="name">一氧化碳</div><div class="desc">有毒气体</div></div>
+            <div class="f-card"><div class="sym">Fe₂O₃</div><div class="name">氧化铁</div><div class="desc">铁锈主要成分</div></div>
+            <div class="f-card"><div class="sym">CaO</div><div class="name">氧化钙</div><div class="desc">生石灰</div></div>
+            <div class="f-card"><div class="sym">MnO₂</div><div class="name">二氧化锰</div><div class="desc">常用催化剂</div></div>
+          </div>
+          <div class="section-label">常见单质</div>
+          <div class="formula-grid">
+            <div class="f-card"><div class="sym">O₂</div><div class="name">氧气</div><div class="desc">支持燃烧</div></div>
+            <div class="f-card"><div class="sym">H₂</div><div class="name">氢气</div><div class="desc">清洁能源</div></div>
+            <div class="f-card"><div class="sym">C</div><div class="name">碳</div><div class="desc">金刚石/石墨</div></div>
+            <div class="f-card"><div class="sym">Fe</div><div class="name">铁</div><div class="desc">常见金属</div></div>
+            <div class="f-card"><div class="sym">Cu</div><div class="name">铜</div><div class="desc">导电性好</div></div>
+            <div class="f-card"><div class="sym">Al</div><div class="name">铝</div><div class="desc">密度小</div></div>
+          </div>
+          <div class="section-label">重要化学反应方程式</div>
+          <div class="reaction">2H₂O <span class="arrow">→（通电）</span> 2H₂↑ + O₂↑　　<span style="color:var(--text-tertiary);font-size:13px;">电解水</span></div>
+          <div class="reaction">2KMnO₄ <span class="arrow">→（加热）</span> K₂MnO₄ + MnO₂ + O₂↑　　<span style="color:var(--text-tertiary);font-size:13px;">高锰酸钾制氧气</span></div>
+          <div class="reaction">C + O₂ <span class="arrow">→（点燃，O₂充足）</span> CO₂　　<span style="color:var(--text-tertiary);font-size:13px;">碳充分燃烧</span></div>
+          <div class="reaction">Fe + CuSO₄ → FeSO₄ + Cu　　<span style="color:var(--text-tertiary);font-size:13px;">铁与硫酸铜反应</span></div>
+          <div class="reaction">CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑　　<span style="color:var(--text-tertiary);font-size:13px;">实验室制CO₂</span></div>
+        </div>
+        <button class="quick-btn" onclick="askAI('请出一道化学方程式配平的练习题，步骤要详细，用初中生能理解的方式一步步讲解配平过程')">⚗️ AI 出配平练习题</button>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<script>
+// ── API Key ──
+let apiKey = localStorage.getItem('chem_api_key') || '';
+function updateApiStatus() {
+  const dot = document.getElementById('api-dot');
+  const label = document.getElementById('api-label');
+  if (apiKey) { dot.classList.remove('error'); label.textContent = 'AI 已连接'; }
+  else { dot.classList.add('error'); label.textContent = 'API 未连接'; }
+}
+function saveKey() {
+  const v = document.getElementById('key-input').value.trim();
+  if (v) { apiKey = v; localStorage.setItem('chem_api_key', v); }
+  document.getElementById('setup-modal').style.display = 'none';
+  updateApiStatus();
+}
+function skipSetup() { document.getElementById('setup-modal').style.display = 'none'; }
+
+// Show modal only if no key
+window.addEventListener('DOMContentLoaded', () => {
+  if (apiKey) document.getElementById('setup-modal').style.display = 'none';
+  updateApiStatus(); renderQuiz(); showCard();
+});
+
+// ── Navigation ──
+function nav(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  const titles = { chapters:'章节导览', chat:'自由提问', quiz:'随堂测验', flashcards:'记忆卡片', experiments:'实验步骤', formulas:'化学式速查' };
+  document.getElementById('page-title').textContent = titles[id] || '';
+  closeSidebar();
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mask').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mask').classList.remove('show');
+}
+
+// ── AI call ──
+async function callAI(prompt, onChunk) {
+  if (!apiKey) { onChunk('⚠️ 请先在左侧设置中填入 Anthropic API Key，才能使用 AI 功能。'); return; }
+  const sys = '你是一位专门辅导初中生的化学老师，风格生动有趣、善用生活中的例子。用中文回答，内容准确，适合13-15岁的女生。使用 Markdown 格式（**加粗**、标题、表格等）让内容更清晰。';
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ apiKey, system: sys, message: prompt })
+  });
+  if (!res.ok) { const e = await res.json(); onChunk('❌ ' + (e.error || '请求失败，请检查 API Key')); return; }
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
+  while (true) {
+    const { done, value } = await reader.read(); if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n'); buf = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const d = line.slice(6); if (d === '[DONE]') return;
+      try { const j = JSON.parse(d); if (j.delta?.text) onChunk(j.delta.text); } catch {}
+    }
+  }
+}
+
+function md(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/`(.+?)`/g,'<code>$1</code>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^# (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>')
+    .replace(/^\|(.+)\|$/gm, row => '<tr>' + row.split('|').filter((_,i,a)=>i>0&&i<a.length-1).map(c=>`<td>${c.trim()}</td>`).join('') + '</tr>')
+    .replace(/(<tr>.+<\/tr>\n?)+/gs, t => '<table>' + t.replace(/<td>[-:]+<\/td>/g,'') + '</table>')
+    .replace(/^[-•] (.+)$/gm,'<li>$1</li>').replace(/(<li>[\s\S]+?<\/li>)/g,'<ul>$1</ul>')
+    .replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>')
+    .replace(/^(?!<[htuol]|<block)(.+)/gm,'<p>$1</p>');
+}
+
+async function askAI(prompt) {
+  nav('chat', document.querySelector('.nav-item:nth-child(2)'));
+  const area = document.getElementById('free-chat');
+  area.innerHTML += `<div class="chat-bubble user">${prompt}</div>`;
+  const typing = document.createElement('div');
+  typing.className = 'chat-bubble ai typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  area.appendChild(typing);
+  area.scrollTop = area.scrollHeight;
+  let full = '';
+  const bubble = document.createElement('div'); bubble.className = 'chat-bubble ai';
+  await callAI(prompt, chunk => {
+    if (typing.parentNode) { area.replaceChild(bubble, typing); }
+    full += chunk; bubble.innerHTML = md(full); area.scrollTop = area.scrollHeight;
+  });
+}
+
+async function askChapter(ch, detail) {
+  const prompt = `请用生动有趣的方式讲解「${ch}」的核心知识点，包括${detail}。我是初二学生，请用容易理解的例子来说明，并在最后给我出2道相关练习题（附答案解析）。`;
+  nav('chat', document.querySelector('[onclick*="chat"]'));
+  const area = document.getElementById('free-chat');
+  area.innerHTML = `<div class="chat-bubble user">请讲解「${ch}」的核心知识点</div>`;
+  const typing = document.createElement('div');
+  typing.className = 'chat-bubble ai typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  area.appendChild(typing);
+  let full = '';
+  const bubble = document.createElement('div'); bubble.className = 'chat-bubble ai';
+  await callAI(prompt, chunk => {
+    if (typing.parentNode) area.replaceChild(bubble, typing);
+    full += chunk; bubble.innerHTML = md(full); area.scrollTop = area.scrollHeight;
+  });
+}
+
+async function sendFree() {
+  const ta = document.getElementById('free-input');
+  const msg = ta.value.trim(); if (!msg) return;
+  ta.value = ''; ta.style.height = 'auto';
+  const area = document.getElementById('free-chat');
+  area.innerHTML += `<div class="chat-bubble user">${msg}</div>`;
+  const typing = document.createElement('div');
+  typing.className = 'chat-bubble ai typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  area.appendChild(typing);
+  area.scrollTop = area.scrollHeight;
+  let full = '';
+  const bubble = document.createElement('div'); bubble.className = 'chat-bubble ai';
+  const btn = document.getElementById('free-send-btn'); btn.disabled = true;
+  await callAI(msg, chunk => {
+    if (typing.parentNode) area.replaceChild(bubble, typing);
+    full += chunk; bubble.innerHTML = md(full); area.scrollTop = area.scrollHeight;
+  });
+  btn.disabled = false;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFree(); }
+}
+
+// ── Quiz ──
+const Qs = [
+  { q:"空气中含量最多的气体是？", opts:["氧气（O₂）","氮气（N₂）","二氧化碳（CO₂）","稀有气体"], ans:1, ex:"空气中氮气约占78%，氧气约占21%。氮气是最多的！" },
+  { q:"电解水时，负极产生的气体是？", opts:["氧气","二氧化碳","氢气","氮气"], ans:2, ex:"口诀：负氢正氧。负极产生H₂，正极产生O₂，体积比2:1。" },
+  { q:"下列属于化学变化的是？", opts:["冰雪融化","铁锅生锈","水分蒸发","玻璃破碎"], ans:1, ex:"铁锅生锈生成了新物质Fe₂O₃，是化学变化。其余只是物理变化。" },
+  { q:"原子由哪些粒子构成？", opts:["质子+中子","质子+电子","质子+中子+电子","中子+电子"], ans:2, ex:"原子 = 原子核（质子+中子）+ 核外电子。质子带正电，电子带负电，整体呈电中性。" },
+  { q:"检验CO₂气体存在的常用方法是？", opts:["点燃木条","放入水中","通入澄清石灰水","嗅气味"], ans:2, ex:"CO₂通入澄清石灰水会生成白色沉淀CaCO₃，使石灰水变浑浊。" },
+  { q:"高锰酸钾（KMnO₄）是什么颜色？", opts:["白色","黑色","紫黑色","红棕色"], ans:2, ex:"高锰酸钾是紫黑色固体，溶液是紫色的，常用于实验室制取氧气。" },
+  { q:"下列金属活动性最强的是？", opts:["铁（Fe）","铜（Cu）","铝（Al）","金（Au）"], ans:2, ex:"活动性顺序：铝 > 铁 > 铜 > 金。铝最活泼，表面会形成致密氧化膜。" },
+  { q:"质量守恒定律中，化学反应前后不改变的是？", opts:["物质种类","分子数目","原子种类和数目","各物质质量"], ans:2, ex:"质量守恒实质：反应前后原子的种类、数目和质量都不变，所以总质量相等！" },
+];
+let qIdx=0, qScore=0, qAnswered=false;
+
+function renderQuiz() {
+  if (qIdx >= Qs.length) {
+    document.getElementById('quiz-wrap').innerHTML = `
+      <div style="text-align:center;padding:3rem 1rem;">
+        <div style="font-size:48px;margin-bottom:16px;">${qScore>=6?'🎉':qScore>=4?'👍':'💪'}</div>
+        <div style="font-size:22px;font-weight:600;margin-bottom:8px;">测验完成！</div>
+        <div style="font-size:15px;color:var(--text-secondary);margin-bottom:24px;">你答对了 ${qScore} / ${Qs.length} 题</div>
+        <button onclick="resetQuiz()" style="padding:10px 28px;border-radius:20px;border:0.5px solid var(--purple-200);background:var(--purple-50);color:var(--purple-800);font-size:15px;cursor:pointer;">🔄 重新挑战</button>
+      </div>`;
+    return;
+  }
+  const q = Qs[qIdx]; qAnswered = false;
+  document.getElementById('prog').style.width = (qIdx/Qs.length*100)+'%';
+  document.getElementById('score-disp').textContent = qScore;
+  document.getElementById('total-disp').textContent = qIdx;
+  document.getElementById('quiz-wrap').innerHTML = `
+    <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:10px;">第 ${qIdx+1} 题 / 共 ${Qs.length} 题</div>
+    <div class="card">
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${q.opts.map((o,i)=>`<button class="opt" onclick="answer(${i})">${['A','B','C','D'][i]}. ${o}</button>`).join('')}</div>
+      <div class="feedback" id="fb"></div>
+      <button class="next-btn" id="nxt" onclick="nextQ()">下一题 →</button>
+    </div>`;
+}
+function answer(i) {
+  if (qAnswered) return; qAnswered = true;
+  const q = Qs[qIdx];
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.opt')[q.ans].classList.add('correct');
+  const fb = document.getElementById('fb');
+  if (i===q.ans) { qScore++; document.getElementById('score-disp').textContent=qScore; fb.textContent='✅ 正确！'+q.ex; fb.className='feedback show correct'; }
+  else { document.querySelectorAll('.opt')[i].classList.add('wrong'); fb.textContent='❌ 答错了。'+q.ex; fb.className='feedback show wrong'; }
+  document.getElementById('nxt').classList.add('show');
+}
+function nextQ() { qIdx++; renderQuiz(); }
+function resetQuiz() { qIdx=0; qScore=0; renderQuiz(); }
+
+// ── Flashcards ──
+const FC = [
+  { sym:"H₂O", hint:"最常见的液体化学式是？", back:"水（Water）\n由 2个H + 1个O 构成\n相对分子质量 = 18\n最常见的溶剂" },
+  { sym:"CO₂", hint:"植物光合作用吸收的气体", back:"二氧化碳\n1个C + 2个O\n通入石灰水变浑浊\n相对分子质量 = 44" },
+  { sym:"O₂", hint:"空气中第二多的气体", back:"氧气\n支持燃烧，供给呼吸\n空气中约占21%\n可用排水法收集" },
+  { sym:"质量守恒定律", hint:"化学反应前后……", back:"反应物总质量 = 生成物总质量\n实质：原子的种类、数目、质量不变\n是配平化学方程式的基础" },
+  { sym:"KMnO₄", hint:"加热可制取O₂的紫黑色固体", back:"高锰酸钾\n紫黑色固体，溶液紫色\n加热：2KMnO₄ → K₂MnO₄ + MnO₂ + O₂↑\n管口需塞棉花！" },
+  { sym:"碳的同素异形体", hint:"同种元素，性质却天差地别", back:"金刚石：最硬，透明，不导电\n石墨：最软，黑色，能导电\n活性炭：疏松多孔，强吸附性\n三者都由C元素组成！" },
+  { sym:"分子 vs 原子", hint:"两者最本质的区别是？", back:"分子：保持物质化学性质的最小微粒，化学变化中可再分\n原子：化学变化中不可再分的最小微粒\n关系：分子由原子构成" },
+  { sym:"Fe₂O₃", hint:"自行车生锈后的主要成分", back:"氧化铁（铁锈）\n红棕色固体\n防锈方法：涂油漆、镀铬、镀锌\n4Fe + 3O₂ + 6H₂O → 4Fe(OH)₃（简化）" },
+  { sym:"地壳元素含量", hint:"从多到少排前四位", back:"氧（O）> 硅（Si）> 铝（Al）> 铁（Fe）\n口诀：养（O）鬼（Si）铝铁\n氧元素约占49%，硅约占26%" },
+  { sym:"化合价规则", hint:"化学式中化合价的总和", back:"化合物中各元素化合价代数和 = 0\n常见化合价：\nH：+1，O：-2，Na：+1\nFe：+2/+3，Cu：+1/+2\n单质中化合价为 0" },
+];
+let fcIdx=0;
+function showCard() {
+  document.getElementById('fc').classList.remove('flipped');
+  document.getElementById('fc-sym').textContent = FC[fcIdx].sym;
+  document.getElementById('fc-hint').textContent = FC[fcIdx].hint;
+  document.getElementById('fc-back').textContent = FC[fcIdx].back;
+  document.getElementById('fc-count').textContent = `${fcIdx+1} / ${FC.length}`;
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function fcPrev() { fcIdx=(fcIdx-1+FC.length)%FC.length; showCard(); }
+function fcNext() { fcIdx=(fcIdx+1)%FC.length; showCard(); }
+</script>
+</body>
+</html>
