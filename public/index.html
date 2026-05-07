@@ -229,14 +229,22 @@
 
     /* ── Setup modal ── */
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .modal { background: var(--bg); border-radius: var(--radius-xl); padding: 2rem; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal { background: var(--bg); border-radius: var(--radius-xl); padding: 2rem; width: 100%; max-width: 460px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 92vh; overflow-y: auto; }
     .modal h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
     .modal p { font-size: 14px; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.7; }
-    .modal input { width: 100%; padding: 10px 14px; border: 0.5px solid var(--border-secondary); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); font-size: 14px; outline: none; margin-bottom: 1rem; }
-    .modal input:focus { border-color: var(--purple-400); }
+    .modal input, .modal select { width: 100%; padding: 10px 14px; border: 0.5px solid var(--border-secondary); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); font-size: 14px; outline: none; margin-bottom: 1rem; appearance: none; }
+    .modal input:focus, .modal select:focus { border-color: var(--purple-400); }
     .modal-btn { width: 100%; padding: 11px; border: none; border-radius: var(--radius); background: var(--purple-400); color: white; font-size: 15px; font-weight: 500; cursor: pointer; }
     .modal-btn:hover { background: var(--purple-600); }
     .modal-note { font-size: 12px; color: var(--text-tertiary); margin-top: 12px; line-height: 1.6; }
+    .modal-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+    .provider-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
+    .provider-btn { padding: 10px 8px; border: 0.5px solid var(--border-secondary); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); font-size: 13px; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .provider-btn:hover { border-color: var(--purple-200); background: var(--purple-50); }
+    .provider-btn.selected { border-color: var(--purple-400); background: var(--purple-50); color: var(--purple-800); font-weight: 500; }
+    .provider-btn .pb-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .field-group { margin-bottom: 0; }
+    .model-hint { font-size: 11px; color: var(--text-tertiary); margin-top: -8px; margin-bottom: 1rem; line-height: 1.5; }
 
     /* ── Mobile ── */
     .overlay-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90; }
@@ -261,12 +269,40 @@
   <div class="modal">
     <div style="font-size:36px;margin-bottom:12px;">🧪</div>
     <h2>化学小课堂</h2>
-    <p>请输入你的 Anthropic API Key，才能启用 AI 讲解功能。Key 仅保存在本地浏览器，不会上传到任何服务器。</p>
-    <input type="password" id="key-input" placeholder="sk-ant-api03-..." />
+    <p style="margin-bottom:1rem;">选择你要使用的 AI 模型，填入 API Key 即可开始学习。Key 仅保存在本地浏览器。</p>
+
+    <span class="modal-label">选择 AI 服务商</span>
+    <div class="provider-grid">
+      <button class="provider-btn selected" onclick="selectProvider('anthropic', this)">
+        <span class="pb-icon">🤖</span>Claude<br><span style="font-size:11px;color:var(--text-tertiary)">Anthropic</span>
+      </button>
+      <button class="provider-btn" onclick="selectProvider('kimi', this)">
+        <span class="pb-icon">🌙</span>Kimi<br><span style="font-size:11px;color:var(--text-tertiary)">月之暗面</span>
+      </button>
+      <button class="provider-btn" onclick="selectProvider('openai', this)">
+        <span class="pb-icon">✨</span>GPT<br><span style="font-size:11px;color:var(--text-tertiary)">OpenAI</span>
+      </button>
+      <button class="provider-btn" onclick="selectProvider('deepseek', this)">
+        <span class="pb-icon">🐋</span>DeepSeek<br><span style="font-size:11px;color:var(--text-tertiary)">深度求索</span>
+      </button>
+    </div>
+
+    <div class="field-group">
+      <span class="modal-label" id="key-label">API Key</span>
+      <input type="password" id="key-input" placeholder="sk-ant-api03-..." />
+
+      <span class="modal-label">模型版本</span>
+      <select id="model-select">
+        <option value="claude-sonnet-4-20250514">claude-sonnet-4（推荐）</option>
+        <option value="claude-opus-4-20250514">claude-opus-4（最强）</option>
+        <option value="claude-haiku-4-5-20251001">claude-haiku-4（最快）</option>
+      </select>
+      <div class="model-hint" id="model-hint">前往 console.anthropic.com 获取 Key</div>
+    </div>
+
     <button class="modal-btn" onclick="saveKey()">开始学习 →</button>
     <p class="modal-note">
-      还没有 API Key？前往 <a href="https://console.anthropic.com" target="_blank" style="color:var(--purple-400)">console.anthropic.com</a> 免费注册获取。<br>
-      没有 Key 也可以使用测验、记忆卡片等离线功能。<br><br>
+      没有 Key 也可以使用测验、记忆卡片等离线功能。<br>
       <a href="#" onclick="skipSetup()" style="color:var(--text-tertiary)">跳过，先看看 →</a>
     </p>
   </div>
@@ -302,8 +338,9 @@
       <div class="api-status">
         <div class="dot" id="api-dot"></div>
         <span id="api-label">API 未连接</span>
-        <button onclick="document.getElementById('setup-modal').style.display='flex'" style="margin-left:auto;background:none;border:none;color:var(--purple-400);font-size:12px;cursor:pointer;">设置</button>
+        <button onclick="document.getElementById('setup-modal').style.display='flex'" style="margin-left:auto;background:none;border:none;color:var(--purple-400);font-size:12px;cursor:pointer;">切换模型</button>
       </div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;" id="model-badge"></div>
     </div>
   </aside>
 
@@ -451,24 +488,109 @@
 </div>
 
 <script>
-// ── API Key ──
-let apiKey = localStorage.getItem('chem_api_key') || '';
-function updateApiStatus() {
-  const dot = document.getElementById('api-dot');
-  const label = document.getElementById('api-label');
-  if (apiKey) { dot.classList.remove('error'); label.textContent = 'AI 已连接'; }
-  else { dot.classList.add('error'); label.textContent = 'API 未连接'; }
+// ── Provider config ──
+const PROVIDERS = {
+  anthropic: {
+    name: 'Claude (Anthropic)',
+    placeholder: 'sk-ant-api03-...',
+    hint: '前往 console.anthropic.com 获取 Key',
+    models: [
+      { value: 'claude-sonnet-4-20250514', label: 'claude-sonnet-4（推荐）' },
+      { value: 'claude-opus-4-20250514',   label: 'claude-opus-4（最强）' },
+      { value: 'claude-haiku-4-5-20251001',label: 'claude-haiku-4（最快）' },
+    ],
+  },
+  kimi: {
+    name: 'Kimi (月之暗面)',
+    placeholder: 'sk-...',
+    hint: '前往 platform.moonshot.cn 获取 Key',
+    models: [
+      { value: 'moonshot-v1-8k',   label: 'moonshot-v1-8k（快速）' },
+      { value: 'moonshot-v1-32k',  label: 'moonshot-v1-32k（推荐）' },
+      { value: 'moonshot-v1-128k', label: 'moonshot-v1-128k（长文本）' },
+    ],
+  },
+  openai: {
+    name: 'GPT (OpenAI)',
+    placeholder: 'sk-...',
+    hint: '前往 platform.openai.com 获取 Key',
+    models: [
+      { value: 'gpt-4o-mini', label: 'gpt-4o-mini（经济）' },
+      { value: 'gpt-4o',      label: 'gpt-4o（推荐）' },
+      { value: 'gpt-4-turbo', label: 'gpt-4-turbo（强力）' },
+    ],
+  },
+  deepseek: {
+    name: 'DeepSeek (深度求索)',
+    placeholder: 'sk-...',
+    hint: '前往 platform.deepseek.com 获取 Key',
+    models: [
+      { value: 'deepseek-chat',     label: 'deepseek-chat（推荐）' },
+      { value: 'deepseek-reasoner', label: 'deepseek-reasoner（推理）' },
+    ],
+  },
+};
+
+let currentProvider = localStorage.getItem('chem_provider') || 'anthropic';
+let apiKey   = localStorage.getItem('chem_api_key')   || '';
+let apiModel = localStorage.getItem('chem_api_model') || '';
+
+// ── Modal provider selection ──
+function selectProvider(id, btn) {
+  currentProvider = id;
+  document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const cfg = PROVIDERS[id];
+  document.getElementById('key-input').placeholder = cfg.placeholder;
+  document.getElementById('key-label').textContent = cfg.name + ' API Key';
+  document.getElementById('model-hint').textContent = cfg.hint;
+  const sel = document.getElementById('model-select');
+  sel.innerHTML = cfg.models.map(m => `<option value="${m.value}">${m.label}</option>`).join('');
 }
+
+function updateApiStatus() {
+  const dot   = document.getElementById('api-dot');
+  const label = document.getElementById('api-label');
+  const badge = document.getElementById('model-badge');
+  if (apiKey) {
+    dot.classList.remove('error');
+    label.textContent = 'AI 已连接';
+    const cfg = PROVIDERS[currentProvider];
+    const m = cfg?.models.find(x => x.value === apiModel);
+    badge.textContent = (cfg?.name || '') + (m ? ' · ' + m.label.split('（')[0] : '');
+  } else {
+    dot.classList.add('error');
+    label.textContent = 'API 未连接';
+    badge.textContent = '';
+  }
+}
+
 function saveKey() {
   const v = document.getElementById('key-input').value.trim();
-  if (v) { apiKey = v; localStorage.setItem('chem_api_key', v); }
+  const m = document.getElementById('model-select').value;
+  if (v) {
+    apiKey = v;
+    apiModel = m || PROVIDERS[currentProvider].models[0].value;
+    localStorage.setItem('chem_api_key',   apiKey);
+    localStorage.setItem('chem_api_model', apiModel);
+    localStorage.setItem('chem_provider',  currentProvider);
+  }
   document.getElementById('setup-modal').style.display = 'none';
   updateApiStatus();
 }
 function skipSetup() { document.getElementById('setup-modal').style.display = 'none'; }
 
-// Show modal only if no key
 window.addEventListener('DOMContentLoaded', () => {
+  // Restore provider selection in modal
+  if (currentProvider) {
+    const btn = document.querySelector(`.provider-btn[onclick*="'${currentProvider}'"]`);
+    if (btn) selectProvider(currentProvider, btn);
+  }
+  // Pre-fill saved model
+  if (apiModel) {
+    const sel = document.getElementById('model-select');
+    if ([...sel.options].some(o => o.value === apiModel)) sel.value = apiModel;
+  }
   if (apiKey) document.getElementById('setup-modal').style.display = 'none';
   updateApiStatus(); renderQuiz(); showCard();
 });
@@ -492,25 +614,49 @@ function closeSidebar() {
   document.getElementById('mask').classList.remove('show');
 }
 
-// ── AI call ──
+// ── AI call — multi-provider ──
 async function callAI(prompt, onChunk) {
-  if (!apiKey) { onChunk('⚠️ 请先在左侧设置中填入 Anthropic API Key，才能使用 AI 功能。'); return; }
+  if (!apiKey) {
+    onChunk('⚠️ 请先点击左下角「切换模型」，填入 API Key，才能使用 AI 功能。');
+    return;
+  }
   const sys = '你是一位专门辅导初中生的化学老师，风格生动有趣、善用生活中的例子。用中文回答，内容准确，适合13-15岁的女生。使用 Markdown 格式（**加粗**、标题、表格等）让内容更清晰。';
+  const model = apiModel || PROVIDERS[currentProvider].models[0].value;
+
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiKey, system: sys, message: prompt })
+    body: JSON.stringify({ apiKey, provider: currentProvider, model, system: sys, message: prompt }),
   });
-  if (!res.ok) { const e = await res.json(); onChunk('❌ ' + (e.error || '请求失败，请检查 API Key')); return; }
-  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    onChunk('❌ ' + (e.error || '请求失败，请检查 API Key 是否正确'));
+    return;
+  }
+
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '';
+
   while (true) {
-    const { done, value } = await reader.read(); if (done) break;
+    const { done, value } = await reader.read();
+    if (done) break;
     buf += dec.decode(value, { stream: true });
-    const lines = buf.split('\n'); buf = lines.pop();
+    const lines = buf.split('\n');
+    buf = lines.pop();
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
-      const d = line.slice(6); if (d === '[DONE]') return;
-      try { const j = JSON.parse(d); if (j.delta?.text) onChunk(j.delta.text); } catch {}
+      const d = line.slice(6);
+      if (d === '[DONE]') return;
+      try {
+        const j = JSON.parse(d);
+        // Anthropic format
+        if (j.delta?.text) { onChunk(j.delta.text); continue; }
+        // OpenAI-compatible format (Kimi, OpenAI, DeepSeek)
+        const chunk = j.choices?.[0]?.delta?.content;
+        if (chunk) onChunk(chunk);
+      } catch {}
     }
   }
 }
